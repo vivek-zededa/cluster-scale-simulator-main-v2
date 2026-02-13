@@ -22,6 +22,32 @@ Before starting, ensure you have:
 - **ZKS Server** running and accessible from the EC2 instance
 - **Kubernetes cluster** (EKS, self-managed, or k3d/kind) accessible from the EC2 instance
 
+## Quick Start for Ubuntu 22.04
+
+If you're using Ubuntu 22.04, here's a quick command reference (use `apt-get` instead of `yum`):
+
+```bash
+# Install Docker
+sudo apt-get update
+sudo apt-get install -y docker.io
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker $USER
+newgrp docker  # Apply group changes
+
+# Install kubectl
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+# Install Python and dependencies
+sudo apt-get install -y python3 python3-pip python3-venv git
+
+# Install AWS CLI
+sudo apt-get install -y awscli
+```
+
+**Note**: This guide provides instructions for both Ubuntu 22.04 and Amazon Linux 2023. Use the sections labeled for your OS.
+
 ## AWS EC2 Instance Setup
 
 ### 1. Launch EC2 Instance
@@ -48,6 +74,54 @@ ssh -i your-key.pem ubuntu@your-instance-ip
 
 ### Step 1: Install Docker
 
+**For Ubuntu 22.04 (Recommended):**
+```bash
+# Update package index
+sudo apt-get update
+
+# Install prerequisites
+sudo apt-get install -y ca-certificates curl gnupg lsb-release
+
+# Add Docker's official GPG key
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+# Set up Docker repository
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Install Docker Engine
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Start and enable Docker
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Add user to docker group
+sudo usermod -aG docker $USER
+
+# Apply group changes without logging out
+newgrp docker
+
+# Verify Docker installation
+docker --version
+docker ps
+```
+
+**Alternative for Ubuntu (using docker.io package):**
+```bash
+sudo apt-get update
+sudo apt-get install -y docker.io
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker $USER
+newgrp docker  # Apply group changes
+docker --version
+docker ps
+```
+
 **For Amazon Linux 2023:**
 ```bash
 sudo yum update -y
@@ -58,34 +132,26 @@ sudo usermod -aG docker $USER
 # Log out and back in for group changes to take effect
 ```
 
-**For Ubuntu 22.04:**
-```bash
-sudo apt-get update
-sudo apt-get install -y docker.io
-sudo systemctl start docker
-sudo systemctl enable docker
-sudo usermod -aG docker $USER
-# Log out and back in for group changes to take effect
-```
-
-**Verify Docker installation:**
-```bash
-docker --version
-docker ps
-```
-
 ### Step 2: Install Kubernetes Tools
 
-**Install kubectl:**
+**Install kubectl (works for both Ubuntu and Amazon Linux):**
 ```bash
-# For Amazon Linux / RHEL
+# Download latest kubectl
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
+# Install kubectl
 sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+# Verify installation
 kubectl version --client
 
-# For Ubuntu
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+# Clean up downloaded file
+rm kubectl
+```
+
+**Alternative for Ubuntu (using snap):**
+```bash
+sudo snap install kubectl --classic
 kubectl version --client
 ```
 
@@ -96,14 +162,23 @@ curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 
 ### Step 3: Install Python and Dependencies
 
+**For Ubuntu 22.04:**
+```bash
+# Update package list
+sudo apt-get update
+
+# Install Python 3, pip, venv, and git
+sudo apt-get install -y python3 python3-pip python3-venv git
+
+# Verify installations
+python3 --version
+pip3 --version
+git --version
+```
+
 **For Amazon Linux 2023:**
 ```bash
 sudo yum install -y python3 python3-pip git
-```
-
-**For Ubuntu 22.04:**
-```bash
-sudo apt-get install -y python3 python3-pip python3-venv git
 ```
 
 ### Step 4: Clone and Setup Simulator
@@ -183,12 +258,24 @@ Edit `my-config.json` with your values:
 **For EKS:**
 ```bash
 # Install AWS CLI if not already installed
-sudo yum install -y aws-cli  # Amazon Linux
-# or
-sudo apt-get install -y awscli  # Ubuntu
+# For Ubuntu 22.04:
+sudo apt-get update
+sudo apt-get install -y awscli
+
+# For Amazon Linux 2023:
+# sudo yum install -y aws-cli
+
+# Verify AWS CLI installation
+aws --version
 
 # Configure AWS credentials
 aws configure
+
+# Install eksctl (recommended for EKS management)
+# For Ubuntu:
+curl -sSL "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar -xz -C /tmp
+sudo mv /tmp/eksctl /usr/local/bin
+eksctl version
 
 # Get EKS kubeconfig
 aws eks update-kubeconfig --region us-east-1 --name your-cluster-name
@@ -306,9 +393,15 @@ python3 kwok_cluster_simulator.py --config my-config.json \
 
 **Solution:**
 ```bash
+# Add user to docker group
 sudo usermod -aG docker $USER
-# Log out and back in
+
+# Apply group changes without logging out (Ubuntu/Linux)
 newgrp docker
+
+# Or log out and back in
+# Then verify:
+docker ps
 ```
 
 ### Issue: Cannot Connect to Kubernetes Cluster
