@@ -1,0 +1,90 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: zks-simulator
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kwok-kubeconfig-CLUSTER_NAME
+  namespace: zks-simulator
+data:
+  kubeconfig: |
+KWOK_KUBECONFIG_CONTENT
+  ca.crt: |
+CA_CERT_CONTENT
+  ca.key: |
+CA_KEY_CONTENT
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: zks-kubeconfig
+  namespace: zks-simulator
+type: Opaque
+data:
+  kubeconfig: ZKS_KUBECONFIG_BASE64
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zks-agent-CLUSTER_NAME
+  namespace: zks-simulator
+  labels:
+    app: zks-agent-sim
+    cluster: CLUSTER_NAME
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zks-agent-sim
+      cluster: CLUSTER_NAME
+  template:
+    metadata:
+      labels:
+        app: zks-agent-sim
+        cluster: CLUSTER_NAME
+    spec:
+      # Use host networking to avoid IP exhaustion (k3d Flannel default: 254 IPs)
+      # Agent pods don't need network isolation - they just need to reach KWOK + ZKS
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      hostAliases:
+      - ip: "KWOK_NETWORK_IP"
+        hostnames:
+        - "host.docker.internal"
+      containers:
+      - name: agent
+        image: AGENT_IMAGE
+        imagePullPolicy: IfNotPresent
+        args:
+        - --context=KWOK_CONTEXT
+        - --cluster-id=CLUSTER_ID
+        - --zks-url=ZKS_HOST
+        - --namespace=zks-system
+        - --zks-kubeconfig=/config/zks/kubeconfig
+        - --poll-interval=POLL_INTERVAL
+        - --steve-port=STEVE_PORT
+        env:
+        - name: KUBECONFIG
+          value: /config/kwok/kubeconfig
+        volumeMounts:
+        - name: kwok-kubeconfig
+          mountPath: /config/kwok
+          readOnly: true
+        - name: zks-kubeconfig
+          mountPath: /config/zks
+          readOnly: true
+        resources:
+          requests:
+            memory: "64Mi"
+          limits:
+            memory: "128Mi"
+      volumes:
+      - name: kwok-kubeconfig
+        configMap:
+          name: kwok-kubeconfig-CLUSTER_NAME
+      - name: zks-kubeconfig
+        secret:
+          secretName: zks-kubeconfig

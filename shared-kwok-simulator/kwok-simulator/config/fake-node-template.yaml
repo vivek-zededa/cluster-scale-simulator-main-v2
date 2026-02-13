@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Node
+metadata:
+  name: REPLACE_NODE_NAME
+  annotations:
+    node.alpha.kubernetes.io/ttl: "0"
+    kwok.x-k8s.io/node: "fake"
+  labels:
+    kubernetes.io/hostname: REPLACE_NODE_NAME
+    kubernetes.io/os: linux
+    kubernetes.io/arch: amd64
+    kubernetes.io/role: worker
+    node.kubernetes.io/instance-type: fake
+    type: kwok
+status:
+  allocatable:
+    cpu: "8"
+    memory: 32Gi
+    pods: "110"
+  capacity:
+    cpu: "8"
+    memory: 32Gi
+    pods: "110"
+  conditions:
+  - type: Ready
+    status: "True"
+    reason: KubeletReady
+    message: kubelet is posting ready status
+    lastHeartbeatTime: "2024-01-01T00:00:00Z"
+    lastTransitionTime: "2024-01-01T00:00:00Z"
+  - type: MemoryPressure
+    status: "False"
+    reason: KubeletHasSufficientMemory
+    message: kubelet has sufficient memory available
+    lastHeartbeatTime: "2024-01-01T00:00:00Z"
+    lastTransitionTime: "2024-01-01T00:00:00Z"
+  - type: DiskPressure
+    status: "False"
+    reason: KubeletHasNoDiskPressure
+    message: kubelet has no disk pressure
+    lastHeartbeatTime: "2024-01-01T00:00:00Z"
+    lastTransitionTime: "2024-01-01T00:00:00Z"
+  - type: PIDPressure
+    status: "False"
+    reason: KubeletHasSufficientPID
+    message: kubelet has sufficient PID available
+    lastHeartbeatTime: "2024-01-01T00:00:00Z"
+    lastTransitionTime: "2024-01-01T00:00:00Z"
+  - type: NetworkUnavailable
+    status: "False"
+    reason: RouteCreated
+    message: RouteController created a route
+    lastHeartbeatTime: "2024-01-01T00:00:00Z"
+    lastTransitionTime: "2024-01-01T00:00:00Z"
+  addresses:
+  - type: InternalIP
+    address: "10.0.0.1"
+  - type: Hostname
+    address: REPLACE_NODE_NAME
+  nodeInfo:
+    architecture: amd64
+    bootID: ""
+    containerRuntimeVersion: ""
+    kernelVersion: ""
+    kubeProxyVersion: v1.28.0
+    kubeletVersion: v1.28.0
+    machineID: ""
+    operatingSystem: linux
+    osImage: ""
+    systemUUID: ""
+  phase: Running

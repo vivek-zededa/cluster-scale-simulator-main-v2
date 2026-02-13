@@ -1,0 +1,40 @@
+{
+  "import_mode": "zks",
+  
+  "zks_url": "https://your-rancher-server.example.com",
+  "zks_token": "token-xxxxx:your-rancher-token-here",
+  "zks_kubeconfig_path": "/path/to/your/rancher/kubeconfig.yaml",
+  
+  "zedcloud_url": "https://zedcontrol.your-domain.zededa.dev",
+  "zedcloud_token": "username:your-zedcloud-token-here",
+  "zedcloud_project_name": "your-project-name",
+  
+  "host_kubeconfig": "/path/to/your/host/kubeconfig",
+  "host_context": "docker-desktop",
+  
+  "shared_kwok_cluster_name": "shared-kwok",
+  "shared_kwok_api_port": 8050,
+  "cluster_name_prefix": "kwok-scale-test",
+  "kwok_base_port": 10000,
+  "agent_image": "adib146/cluster-agent-simulator:shared-v64",
+  "agent_namespace": "zks-simulator",
+  "agent_poll_interval": 1800,
+  "kwok_image": "ghcr.io/kwok-ci/cluster:v0.7.0-k8s.v1.34.1",
+  
+  "max_workers": null,
+  "kwok_memory_limit": null,
+  "kwok_gogc": 50,
+  "kwok_gomemlimit": "150MiB",
+  "kwok_etcd_quota": "256Mi",
+  
+  "node_capacity": {
+    "cpu": "4",
+    "memory": "8Gi",
+    "pods": "110"
+  },
+  "node_allocatable": {
+    "cpu": "3800m",
+    "memory": "7Gi",
+    "pods": "110"
+  }
+}
