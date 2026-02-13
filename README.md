@@ -14,3 +14,4 @@ Simulate hundreds of Kubernetes clusters connected to ZKS Server for scale testi
 - **[Getting Started Guide](docs/GETTING-STARTED.md)** - Setup, configuration, and running the simulator
 - **[Architecture Documentation](docs/ARCHITECTURE.md)** - Technical details, agent communication, and capacity planning
 - **[AWS Deployment Guide](docs/AWS-DEPLOYMENT-GUIDE.md)** - Step-by-step guide for deploying on AWS EC2 instances
+- **[EKS Large-Scale Deployment Guide](docs/EKS-LARGE-SCALE-DEPLOYMENT.md)** - Guide for deploying on EKS to simulate 2500-3000 nodes
